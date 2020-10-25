@@ -11,7 +11,7 @@ int main()
 	set_parameters(&m_c);
 
 
-	gcry_mpi_dump(m_c.p);
+	gcry_mpi_dump(m_c.p_mod);
 	printf(" p\n");
 	gcry_mpi_dump(m_c.point1.Z);
 	printf(" z\n");
@@ -23,12 +23,27 @@ int main()
 	printf(" y\n");
 
 	gcry_mpi_dump(m_c.A);
-	printf(" a\n");
+	printf(" A\n");
 
 	gcry_mpi_dump(m_c.B);
-	printf(" a\n");
+	printf(" B\n");
+
+	printf(" \n\n\n\n\n");
+ 	// doubling_point(&m_c);
+
+ 	gcry_mpi_dump(m_c.point1.Z);
+	printf(" z\n");
+
+	gcry_mpi_dump(m_c.point1.X);
+	printf(" x\n");
+
+	gcry_mpi_dump(m_c.point1.Y);
+	printf(" y\n");
 
 
+
+
+	is_point_on_curve(&m_c);
 
     printf("finished\n");
 }
