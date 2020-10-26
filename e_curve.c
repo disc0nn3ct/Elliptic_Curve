@@ -148,7 +148,7 @@ void doubling_point(struct mong_curve* m_c)
 	gcry_mpi_subm(a_1, a_1, b_1 , m_c->p_mod);  		 			// (X1 + Z1)^2 - (X1 - Z1)^2
 	gcry_mpi_invm(four, four,  m_c->p_mod); 			 			// 4^(-1)
 	gcry_mpi_addm(a_24, m_c->A, two, m_c->p_mod);		 			// a + 2
-	gcry_mpi_mulm(a_24, a_24, four, m_c->p_mod); 		 			//(a+2)/4
+	gcry_mpi_mulm(a_24, a_24, four, m_c->p_mod); 		 			// (a+2)/4
 	gcry_mpi_mulm(a_24, a_24, a_1, m_c->p_mod);  		 			// (a+2)/4 * ((X1 + Z1)^2 - (X1 - Z1)^2)
 	gcry_mpi_addm(a_24, b_1, a_24, m_c->p_mod); 		 			// (X1 - Z1)^2 + (a+2)/4 * ((X1 + Z1)^2 - (X1 - Z1)^2)
 	gcry_mpi_mulm(m_c->point1.Z, a_1, a_24, m_c->p_mod); 			// ((X1 + Z1)^2 - (X1 - Z1)^2) * ((X1 - Z1)^2 + (a+2)/4 * ((X1 + Z1)^2 - (X1 - Z1)^2))
@@ -174,14 +174,14 @@ int is_point_on_curve(struct mong_curve* m_c)
 	gcry_mpi_t r = gcry_mpi_new(0);
 	gcry_mpi_t r1 = gcry_mpi_new(0);
 
-	gcry_mpi_mulm(l, m_c->point1.Y,m_c->point1.Y, m_c->p_mod); // y*y
-	gcry_mpi_mulm(l, l, m_c->B, m_c->p_mod); // B*y^2
-	gcry_mpi_mulm(r, m_c->point1.X, m_c->point1.X, m_c->p_mod); // x^2
-	gcry_mpi_mulm(r, r, m_c->point1.X, m_c->p_mod); // x^3
-	gcry_mpi_mulm(r1, m_c->point1.X, m_c->point1.X, m_c->p_mod); // x^2
-	gcry_mpi_mulm(r1, r1, m_c->A, m_c->p_mod); // A*x^2
-	gcry_mpi_addm(r, r, r1, m_c->p_mod); // x^3+A*x^2
-	gcry_mpi_addm(r, r, m_c->point1.X, m_c->p_mod); // x^3+A*x^2+x
+	gcry_mpi_mulm(l, m_c->point1.Y,m_c->point1.Y, m_c->p_mod); 						// y*y
+	gcry_mpi_mulm(l, l, m_c->B, m_c->p_mod); 										// B*y^2
+	gcry_mpi_mulm(r, m_c->point1.X, m_c->point1.X, m_c->p_mod); 					// x^2
+	gcry_mpi_mulm(r, r, m_c->point1.X, m_c->p_mod); 								// x^3
+	gcry_mpi_mulm(r1, m_c->point1.X, m_c->point1.X, m_c->p_mod); 					// x^2
+	gcry_mpi_mulm(r1, r1, m_c->A, m_c->p_mod); 										// A*x^2
+	gcry_mpi_addm(r, r, r1, m_c->p_mod); 											// x^3+A*x^2
+	gcry_mpi_addm(r, r, m_c->point1.X, m_c->p_mod);								    // x^3+A*x^2+x
 	
 	if(gcry_mpi_cmp(l,r) == 0) 
 	{
