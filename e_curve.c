@@ -36,6 +36,17 @@ void init_mong_curv(struct mong_curve* s)
 	init_point(&s->point1);
 }
 
+void make_copy_of_curve(struct mong_curve* copy, struct mong_curve* orig)
+{
+	copy->A = gcry_mpi_copy(orig->A);
+	copy->B = gcry_mpi_copy(orig->A);
+	copy->p_mod= gcry_mpi_copy(orig->A); 
+	copy->point1.X =  gcry_mpi_copy(orig->point1.X); 
+	copy->point1.Y = gcry_mpi_copy(orig->point1.Y); 
+	copy->point1.Z = gcry_mpi_copy(orig->point1.Z);
+
+}
+
 
 // Набор параметров id-tc26-gost-3410-2012-512-paramSet
 //https://docplayer.ru/46408167-Tehnicheskiy-komitet-026-zadanie-parametrov-skruchennyh-ellipticheskih-krivyh-edvardsa-v-sootvetstvii-s-gost-r.html 
@@ -81,8 +92,8 @@ void set_parameters(struct mong_curve* m_c)
 
 	// тут производилась отладка через gcry_mpi_dump() и проверка через wolfram mathematica. 
 
-	m_c->p_mod=p;
-	m_c->point1.Z = z; // z = 1
+	m_c->p_mod=gcry_mpi_copy(p);
+	m_c->point1.Z = gcry_mpi_copy(z); // z = 1
 
 	// Реализация перехода: 
 	gcry_mpi_addm(m_c->point1.X, one, v, p);   								// 1 + v 
@@ -115,9 +126,31 @@ void set_parameters(struct mong_curve* m_c)
 	gcry_mpi_release(one);
 	gcry_mpi_release(two);
 	gcry_mpi_release(four);
-	// gcry_mpi_release(p); // так как используются, нельзя удалять 
-	// gcry_mpi_release(z);				
+	gcry_mpi_release(p);  
+	gcry_mpi_release(z);				
 }
+
+// Переход из проективных координат 
+void transform_point(struct point* point_1, gcry_mpi_t* p)
+{
+	gcry_mpi_t littl = gcry_mpi_new(0);
+	if(point_1->Z == 0)
+	{
+		gcry_mpi_invm(littl, point_1->X, *p);
+		gcry_mpi_mulm(point_1->X, littl, point_1->X, *p);
+		gcry_mpi_mulm(point_1->Z, littl, point_1->Z, *p);
+	}
+	else
+	{
+		gcry_mpi_invm(littl, point_1->Z, *p);
+		gcry_mpi_mulm(point_1->X, littl, point_1->X, *p);
+
+
+	}
+
+}
+
+
 
 
 // Удвоение точки будет реализовано: http://hyperelliptic.org/EFD/g1p/auto-montgom-xz.html
@@ -134,10 +167,10 @@ void doubling_point(struct mong_curve* m_c)
  	gcry_mpi_scan(&four, GCRYMPI_FMT_HEX, "4", 0, 0);
  	
 
-	printf("x=========================================\n");
+	// printf("x=========================================\n");
 
-	gcry_mpi_dump(m_c->p_mod);
-	printf(" \nx=========================================\n");
+	// gcry_mpi_dump(m_c->p_mod);
+	// printf(" \nx=========================================\n");
 
 
  	gcry_mpi_addm(a_1, m_c->point1.X, m_c->point1.Z, m_c->p_mod); 	// X1 + Z1
@@ -159,12 +192,6 @@ void doubling_point(struct mong_curve* m_c)
 	gcry_mpi_release(two);
 	gcry_mpi_release(four);
 }
-
-// void add_point(struct mong_curve* m_c)
-// {
-
-// }
-
 
 
 // Проверим точка находится на нашей кривой? Возвращает 0, если на кривой, 1 если нет. 
@@ -197,9 +224,135 @@ int is_point_on_curve(struct mong_curve* m_c)
 
 
 
+//dadd-1987-m  (Сложение) // результат будет записан в point_3 
+void add_point(struct point* point_3, struct point* point_2, struct point* def, gcry_mpi_t* p )
+{
+ 	gcry_mpi_t a_1 = gcry_mpi_new(0);
+ 	gcry_mpi_t a_2 = gcry_mpi_new(0);
+ 	gcry_mpi_t a_3 = gcry_mpi_copy(point_3->X);
+ 	gcry_mpi_t a_4 = gcry_mpi_new(0);
 
 
 
+ 	gcry_mpi_mulm(a_1, point_2->X, point_3->X, *p);		 							// X2*X3
+  	gcry_mpi_mulm(a_2, point_2->Z, point_3->Z, *p); 								// Z2*Z3
+  	gcry_mpi_subm(a_1, a_1, a_2, *p); 												// X2*X3 - Z2*Z3
+  	gcry_mpi_mulm(a_1, a_1, a_1, *p); 												// (X2*X3 - Z2*Z3)^2
+  	gcry_mpi_mulm(point_3->X, def->Z, a_1, *p); 									// Z1 * (X2*X3 - Z2*Z3)^2
+  	gcry_mpi_mulm(a_1, point_2->X, point_3->Z, *p); 								// X2*Z3
+  	gcry_mpi_mulm(a_2, point_2->Z, a_3, *p); 										// Z2*X3
+  	gcry_mpi_subm(a_1, a_1, a_2, *p); 												// X2*Z3 - Z2*X3
+  	gcry_mpi_mulm(a_1, a_1, a_1, *p); 												// (X2*Z3 - Z2*X3)^2
+  	gcry_mpi_mulm(point_3->Z, def->X, a_1, *p); 									// X1 * (X2*Z3 - Z2*X3)^2
+
+ //  	gcry_mpi_subm(a_1, a_3, point_3->Z, *p);
+ //  	gcry_mpi_addm(a_2, point_2->X, point_2->Z, *p);
+ //  	gcry_mpi_mulm(a_1,a_1,a_2,*p);
+ //  	gcry_mpi_addm(a_2, a_3, point_3->Z, *p);
+	// gcry_mpi_subm(a_4, point_2->X, point_2->Z, *p);
+	// gcry_mpi_mulm(a_2, a_2, a_4, *p);
+	// gcry_mpi_subm(a_1, a_1, a_2, *p);
+	// gcry_mpi_mulm(a_1, a_1, a_1, *p);
+	// gcry_mpi_mulm(point_3->Z, a_1, def->X,*p);
+
+  // освобождение памяти
+  	gcry_mpi_release(a_1);
+  	gcry_mpi_release(a_2);
+  	gcry_mpi_release(a_3);
+}
+
+// Реализация лестницы Монтгомери из лекций 53-56 слайды, реализация на 54 стр. 
+// https://drive.google.com/drive/u/1/folders/17_F1NM91KR-6HOnUG_pHWxmtlRf7auU1
+	
+void montgomery_ladder(struct point* point_1, gcry_mpi_t* k, struct mong_curve* m_c)
+{
+	unsigned int bitrate = gcry_mpi_get_nbits(*k);  // получаем длину бинарного вида
+	// struct point point0;
+	// init_point(&point0);
+	// gcry_mpi_scan(&point0.X, GCRYMPI_FMT_HEX, "1", 0, 0);
+	// gcry_mpi_scan(&point0.Z, GCRYMPI_FMT_HEX, "0", 0, 0);
+	// struct point point_sec;
+	// init_point(&point_sec);
+	// point_sec.X = gcry_mpi_copy(point_1->X);  
+	// point_sec.Y = gcry_mpi_copy(point_1->Y);
+	// point_sec.Z = gcry_mpi_copy(point_1->Z); 
+
+
+
+	struct mong_curve point_sec;
+	init_mong_curv(&point_sec);
+
+	struct mong_curve point0;          
+	init_mong_curv(&point0);
+
+	make_copy_of_curve(&point_sec, m_c);  
+	make_copy_of_curve(&point0, m_c);
+
+	gcry_mpi_scan(&point0.point1.X, GCRYMPI_FMT_HEX, "1", 0, 0);
+	gcry_mpi_scan(&point0.point1.Z, GCRYMPI_FMT_HEX, "0", 0, 0);
+
+
+	// printf(" \nx+++++++++++++++++++++++++++++++++  m_c\n");
+	// gcry_mpi_dump(m_c->point1.X);
+	// printf(" X\n");
+	// gcry_mpi_dump(m_c->point1.Y);
+	// printf(" Y\n");
+	// gcry_mpi_dump(m_c->point1.Z);
+	// printf(" Z\n");	
+	// printf(" \nx+++++++++++++++++++++++++++++++++\n");
+
+
+	// printf(" \nx+++++++++++++++++++++++++++++++++  point_1\n");
+	// gcry_mpi_dump(point_1->X);
+	// printf(" X\n");
+	// gcry_mpi_dump(point_1->Y);
+	// printf(" Y\n");
+	// gcry_mpi_dump(point_1->Z);
+	// printf(" Z\n");	
+	// printf(" \nx+++++++++++++++++++++++++++++++++\n");
+
+	// printf(" \nx+++++++++++++++++++++++++++++++++  point0\n");
+	// gcry_mpi_dump(point0.point1.X);
+	// printf(" X\n");
+	// gcry_mpi_dump(point0.point1.Y);
+	// printf(" Y\n");
+	// gcry_mpi_dump(point0.point1.Z);
+	// printf(" Z\n");	
+	// printf(" \nx+++++++++++++++++++++++++++++++++\n");
+
+	// printf(" \nx+++++++++++++++++++++++++++++++++  point_sec\n");
+	// gcry_mpi_dump(point_sec.point1.X);
+	// printf(" X\n");
+	// gcry_mpi_dump(point_sec.point1.Y);
+	// printf(" Y\n");
+	// gcry_mpi_dump(point_sec.point1.Z);
+	// printf(" Z\n");	
+	// printf(" \nx+++++++++++++++++++++++++++++++++\n");
+
+
+
+	for(int i=bitrate-1; i>=0; i--)
+	{
+		if(gcry_mpi_test_bit(*k, i) == 1)   
+		{
+			add_point(&point0.point1, &point_sec.point1, point_1, &m_c->p_mod);
+			doubling_point(&point_sec);
+			printf("1\n");
+		}
+		else
+		{
+			add_point(&point_sec.point1, &point0.point1, point_1, &m_c->p_mod);
+			doubling_point(&point0);
+			printf("0\n");
+		}
+	}
+
+	point_1->X =gcry_mpi_copy(point0.point1.X);
+	point_1->Z =gcry_mpi_copy(point0.point1.Z);
+
+	transform_point(point_1, &m_c->p_mod);
+
+}
 
 
 

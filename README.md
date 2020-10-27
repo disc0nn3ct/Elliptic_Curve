@@ -2,7 +2,7 @@
 
 Вычислить кратную точку на эллиптической кривой в форме Монтгомери 
 
-Выполнено в Ubuntu 20.04
+Выполнено в Kali GNU/Linux Rolling 64 bit. 
 
 Установка: [libgcrypt](https://gnupg.org/download/index.html) 
 
@@ -10,6 +10,7 @@
 
 Установка: сначала Libgpg-error -> Libgcrypt
 
-Компиляция: gcc  main.c e_curve.c  -lgcrypt 
+Компиляция: 
+	gcc  main.c e_curve.c  -lgcrypt 
 
 

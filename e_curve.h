@@ -21,6 +21,10 @@ struct mong_curve
 	struct point point1; 
 };
 
+// создание копии
+void make_copy_of_curve(struct mong_curve* copy, struct mong_curve* orig);
+
+
 // Инициализация переменных для точки (для работы с большими числами) 
 
 void init_point(struct point* p);
@@ -33,6 +37,11 @@ void init_mong_curv(struct mong_curve* s);
 
 void set_parameters(struct mong_curve* m_c);
 
+
+// Переход из проективных координат 
+void transform_point(struct point* point_1, gcry_mpi_t* p);
+
+
 // Удвоение точки будет реализовано: http://hyperelliptic.org/EFD/g1p/auto-montgom-xz.html
 // Алгоритм dbl-1987-m-3 
 void doubling_point(struct mong_curve* m_c);
@@ -43,6 +52,13 @@ void doubling_point(struct mong_curve* m_c);
 int is_point_on_curve(struct mong_curve* m_c);
 
 
+//dadd-1987-m  (Сложение), результат сложения в 1 переменной. p это модуль
+void add_point(struct point* point_3, struct point* point_2, struct point* def, gcry_mpi_t* p );
+
+
+// Реализация лестницы Монтгомери из лекций 53-56 слайды, реализация на 54 стр. 
+// https://drive.google.com/drive/u/1/folders/17_F1NM91KR-6HOnUG_pHWxmtlRf7auU1	
+void montgomery_ladder(struct point* point_1, gcry_mpi_t* k, struct mong_curve* m_c);
 
 
 
