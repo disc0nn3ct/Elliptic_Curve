@@ -21,9 +21,14 @@ struct mong_curve
 	struct point point1; 
 };
 
-// создание копии
+// создание копии точки 
+void make_copy_point(struct point* where, struct point* from);
+
+// создание копии 
 void make_copy_of_curve(struct mong_curve* copy, struct mong_curve* orig);
 
+// Вывод всех координат точки 
+void print_point(struct point* point_1);
 
 // Инициализация переменных для точки (для работы с большими числами) 
 
@@ -59,6 +64,11 @@ void add_point(struct point* point_3, struct point* point_2, struct point* def, 
 // Реализация лестницы Монтгомери из лекций 53-56 слайды, реализация на 54 стр. 
 // https://drive.google.com/drive/u/1/folders/17_F1NM91KR-6HOnUG_pHWxmtlRf7auU1	
 void montgomery_ladder(struct point* point_1, gcry_mpi_t* k, struct mong_curve* m_c);
+
+
+
+
+
 
 
 
