@@ -1,6 +1,15 @@
 #include "e_curve.h"
 #include <gcrypt.h>
 
+
+int flag_for_size = 0; // Переменная для выбора режима: 0 это 256, а 1 это 512 
+
+int set_flag(int a)
+{
+	flag_for_size =a;
+	return flag_for_size;
+}
+
 // структура для хранения точки
 struct point
 {
@@ -52,7 +61,6 @@ void make_copy_of_curve(struct mong_curve* copy, struct mong_curve* orig)
 	copy->point1.X =  gcry_mpi_copy(orig->point1.X); 
 	copy->point1.Y = gcry_mpi_copy(orig->point1.Y); 
 	copy->point1.Z = gcry_mpi_copy(orig->point1.Z);
-
 }
 
 // Вывод всех координат точки 
@@ -86,6 +94,11 @@ void del_curve(struct mong_curve* m_c)
 	del_point(&m_c->point1);
 }
 
+// void set_MPI(gcry_mpi_t* p, char )
+// {
+// 		gcry_mpi_scan(&p, GCRYMPI_FMT_HEX, str, 0, 0);
+// }
+
 
 
 // Набор параметров id-tc26-gost-3410-2012-512-paramSet
@@ -113,8 +126,7 @@ void set_parameters(struct mong_curve* m_c)
  	gcry_mpi_scan(&four, GCRYMPI_FMT_HEX, "4", 0, 0);
 	gcry_mpi_scan(&z, GCRYMPI_FMT_HEX, "1", 0, 0);
 
-	int flag_for_size = 0;
-
+	
 
 	if (flag_for_size == 0)
 	{
@@ -128,6 +140,7 @@ void set_parameters(struct mong_curve* m_c)
 	}
 	else
 	{
+
 	// Набор параметров id-tc26-g o s t-3410-2012-512-paramSetC  
 		gcry_mpi_scan(&p, GCRYMPI_FMT_HEX, "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFDC7", 0, 0);
 		gcry_mpi_scan(&e, GCRYMPI_FMT_HEX, "1", 0, 0);
@@ -183,10 +196,7 @@ void transform_point(struct point* point_1, gcry_mpi_t* p)
 	gcry_mpi_t zeroo = gcry_mpi_new(0);
 	gcry_mpi_scan(&zeroo, GCRYMPI_FMT_HEX, "0", 0, 0);
 
-
-
 	if(gcry_mpi_cmp(point_1->Z, zeroo) != 0)
-	// if(point_1->Z != 0)
 	{	
 		// gcry_mpi_abs( point_1->Z);
 		gcry_mpi_invm(littl, point_1->Z, *p);
@@ -196,7 +206,7 @@ void transform_point(struct point* point_1, gcry_mpi_t* p)
 	else
 	{
 		gcry_mpi_invm(littl, point_1->X, *p);
-		gcry_mpi_mulm(point_1->X, littl, point_1->Z, *p);
+		gcry_mpi_mulm(point_1->X, littl, point_1->X, *p);
 	}
 
 }
@@ -222,14 +232,15 @@ void doubling_point(struct mong_curve* m_c)
 	gcry_mpi_subm(b_1, m_c->point1.X, m_c->point1.Z, m_c->p_mod); 	// X1 - Z1
   	gcry_mpi_mulm(b_1, b_1, b_1, m_c->p_mod);   					// (X1 - Z1)^2
   	gcry_mpi_mulm(m_c->point1.X, a_1, b_1, m_c->p_mod);  			// X3 = (X1 + Z1)^2 * (X1 - Z1)^2
-	gcry_mpi_sub(a_1, a_1, b_1);  		 							// (X1 + Z1)^2 - (X1 - Z1)^2
-	gcry_mpi_invm(four, four,  m_c->p_mod); 			 			// 4^(-1) ///////////////////////////////////////////////////////
+	gcry_mpi_subm(a_1, a_1, b_1, m_c->p_mod);  		 				// (X1 + Z1)^2 - (X1 - Z1)^2
+
+	gcry_mpi_invm(four, four,  m_c->p_mod); 			 			// 4^(-1) 
 	gcry_mpi_add(a_24, m_c->A, two);		 						// a + 2
-	gcry_mpi_mul(a_24, a_24, four); 					 			// (a+2)/4
+	gcry_mpi_mulm(a_24, a_24, four, m_c->p_mod); 					// (a+2)/4    //  Модуль обязательно! ( проверено через wolfram mathematica )
+
 	gcry_mpi_mulm(a_24, a_24, a_1, m_c->p_mod);  		 			// (a+2)/4 * ((X1 + Z1)^2 - (X1 - Z1)^2)
 	gcry_mpi_addm(a_24, b_1, a_24, m_c->p_mod); 		 			// (X1 - Z1)^2 + (a+2)/4 * ((X1 + Z1)^2 - (X1 - Z1)^2)
 	gcry_mpi_mulm(m_c->point1.Z, a_1, a_24, m_c->p_mod); 			// ((X1 + Z1)^2 - (X1 - Z1)^2) * ((X1 - Z1)^2 + (a+2)/4 * ((X1 + Z1)^2 - (X1 - Z1)^2))
-
 
 	gcry_mpi_release(a_1);
 	gcry_mpi_release(b_1);	
@@ -346,7 +357,6 @@ void add_point(struct point* point_3, struct point* point_2, struct point* def, 
 void montgomery_ladder(struct point* point_old, gcry_mpi_t* k, struct mong_curve* m_c)
 {
 	unsigned int bitrate = gcry_mpi_get_nbits(*k);  // получаем длину бинарного вида
-
 	struct mong_curve point_new;
 	init_mong_curv(&point_new);
 
@@ -355,7 +365,6 @@ void montgomery_ladder(struct point* point_old, gcry_mpi_t* k, struct mong_curve
 
 	make_copy_of_curve(&point_new, m_c);  
 	make_copy_of_curve(&point0, m_c);
-
 
 
 	gcry_mpi_scan(&point0.point1.X, GCRYMPI_FMT_HEX, "1", 0, 0);
@@ -368,23 +377,26 @@ void montgomery_ladder(struct point* point_old, gcry_mpi_t* k, struct mong_curve
 			// printf("\n1\n");			
 			add_point(&point0.point1, &point_new.point1, point_old, &m_c->p_mod);
 			doubling_point(&point_new);
+
+			// print_point(&point_new.point1);
+			// print_point(&point0.point1);
 		}
 		else
 		{
-
 			// printf("\n0\n");
 			add_point(&point_new.point1, &point0.point1, point_old, &m_c->p_mod);
 			doubling_point(&point0);
-			
+		
+			// print_point(&point_new.point1);
+			// print_point(&point0.point1);	
 		}
 	}
 
 	point_old->X =gcry_mpi_copy(point0.point1.X);
 	point_old->Z =gcry_mpi_copy(point0.point1.Z);
 
-
 	transform_point(point_old, &m_c->p_mod);
-	
+
 
 	// очищаем память 
 	del_curve(&point_new);	

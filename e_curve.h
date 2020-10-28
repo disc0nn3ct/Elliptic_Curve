@@ -1,6 +1,7 @@
 #ifndef E_CURVE_H
 #define E_CURVE_H
 
+int set_flag(int a);
 
 // структура для хранения точки
 struct point
@@ -26,6 +27,12 @@ void make_copy_point(struct point* where, struct point* from);
 
 // создание копии 
 void make_copy_of_curve(struct mong_curve* copy, struct mong_curve* orig);
+
+// Освобождение памяти выделенной для point
+void del_point(struct point* point_1);
+
+// Освобождение памяти выделенной для структуры кривой + точки
+void del_curve(struct mong_curve* m_c);
 
 // Вывод всех координат точки 
 void print_point(struct point* point_1);
