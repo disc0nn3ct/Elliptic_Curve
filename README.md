@@ -16,7 +16,11 @@ make check
 make install 
 
 Компиляция: 
-	gcc  main.c e_curve.c  -lgcrypt 
+	gcc main.c e_curve.c -lgcrypt 
+
+main.c основной + тесты
+e_curve все алгоритмы
+
 
 
 
