@@ -252,14 +252,14 @@ int is_point_on_curve(struct mong_curve* m_c)
 	gcry_mpi_t r = gcry_mpi_new(0);
 	gcry_mpi_t r1 = gcry_mpi_new(0);
 
-	gcry_mpi_mulm(l, m_c->point1.Y,m_c->point1.Y, m_c->p_mod); 						// y*y
-	gcry_mpi_mulm(l, l, m_c->B, m_c->p_mod); 										// B*y^2
-	gcry_mpi_mulm(r, m_c->point1.X, m_c->point1.X, m_c->p_mod); 					// x^2
-	gcry_mpi_mulm(r, r, m_c->point1.X, m_c->p_mod); 								// x^3
-	gcry_mpi_mulm(r1, m_c->point1.X, m_c->point1.X, m_c->p_mod); 					// x^2
-	gcry_mpi_mulm(r1, r1, m_c->A, m_c->p_mod); 										// A*x^2
-	gcry_mpi_addm(r, r, r1, m_c->p_mod); 											// x^3+A*x^2
-	gcry_mpi_addm(r, r, m_c->point1.X, m_c->p_mod);								    // x^3+A*x^2+x
+	gcry_mpi_mulm(l, m_c->point1.Y,m_c->point1.Y, m_c->p_mod);			// y*y
+	gcry_mpi_mulm(l, l, m_c->B, m_c->p_mod);							// B*y^2
+	gcry_mpi_mulm(r, m_c->point1.X, m_c->point1.X, m_c->p_mod);			// x^2
+	gcry_mpi_mulm(r, r, m_c->point1.X, m_c->p_mod); 					// x^3
+	gcry_mpi_mulm(r1, m_c->point1.X, m_c->point1.X, m_c->p_mod);		// x^2
+	gcry_mpi_mulm(r1, r1, m_c->A, m_c->p_mod);							// A*x^2
+	gcry_mpi_addm(r, r, r1, m_c->p_mod);								// x^3+A*x^2
+	gcry_mpi_addm(r, r, m_c->point1.X, m_c->p_mod);						// x^3+A*x^2+x
 	
 	if(gcry_mpi_cmp(l,r) == 0) 
 	{
@@ -290,36 +290,36 @@ void add_point(struct point* point_3, struct point* point_2, struct point* def, 
 	{
 	//dadd-1987-m-2 
 
-	 	gcry_mpi_subm(a_1, point_3->X, point_3->Z, *p); 									// X3 - Z3
-	 	gcry_mpi_addm(a_2, point_2->X, point_2->Z, *p); 									// X2 + Z2
-	 	gcry_mpi_addm(a_3, point_3->X, point_3->Z, *p); 									// X3 + Z3
-	 	gcry_mpi_subm(a_4, point_2->X, point_2->Z, *p); 									// X2 - Z2
-	 	gcry_mpi_mulm(a_1, a_1, a_2, *p); 													// (X3 - Z3)*(X2 + Z2)
-		gcry_mpi_mulm(a_3, a_3, a_4, *p); 													// (X3 - Z3)*(X2 + Z2)
+	 	gcry_mpi_subm(a_1, point_3->X, point_3->Z, *p); 			// X3 - Z3
+	 	gcry_mpi_addm(a_2, point_2->X, point_2->Z, *p); 			// X2 + Z2
+	 	gcry_mpi_addm(a_3, point_3->X, point_3->Z, *p); 			// X3 + Z3
+	 	gcry_mpi_subm(a_4, point_2->X, point_2->Z, *p); 			// X2 - Z2
+	 	gcry_mpi_mulm(a_1, a_1, a_2, *p); 							// (X3 - Z3)*(X2 + Z2)
+		gcry_mpi_mulm(a_3, a_3, a_4, *p); 							// (X3 - Z3)*(X2 + Z2)
 
-		gcry_mpi_addm(a_2, a_1, a_3, *p); 													// (X3 - Z3)*(X2 + Z2) + (X3 - Z3)*(X2 + Z2)
-		gcry_mpi_mulm(a_2, a_2, a_2, *p);  													// ((X3 - Z3)*(X2 + Z2) + (X3 - Z3)*(X2 + Z2))^2
-		gcry_mpi_mulm(point_3->X, def->Z, a_2, *p);											// Z1 * ((X3 - Z3)*(X2 + Z2) + (X3 - Z3)*(X2 + Z2))^2
+		gcry_mpi_addm(a_2, a_1, a_3, *p); 							// (X3 - Z3)*(X2 + Z2) + (X3 - Z3)*(X2 + Z2)
+		gcry_mpi_mulm(a_2, a_2, a_2, *p);  							// ((X3 - Z3)*(X2 + Z2) + (X3 - Z3)*(X2 + Z2))^2
+		gcry_mpi_mulm(point_3->X, def->Z, a_2, *p);					// Z1 * ((X3 - Z3)*(X2 + Z2) + (X3 - Z3)*(X2 + Z2))^2
 		
-		gcry_mpi_subm(a_2, a_1, a_3, *p); 													// (X3 - Z3)*(X2 + Z2) + (X3 - Z3)*(X2 + Z2)
-		gcry_mpi_mulm(a_2, a_2, a_2, *p);  													// ((X3 - Z3)*(X2 + Z2) + (X3 - Z3)*(X2 + Z2))^2
-		gcry_mpi_mulm(point_3->Z, def->X, a_2, *p); 										// Z1 * ((X3 - Z3)*(X2 + Z2) + (X3 - Z3)*(X2 + Z2))^2
+		gcry_mpi_subm(a_2, a_1, a_3, *p); 							// (X3 - Z3)*(X2 + Z2) + (X3 - Z3)*(X2 + Z2)
+		gcry_mpi_mulm(a_2, a_2, a_2, *p);  							// ((X3 - Z3)*(X2 + Z2) + (X3 - Z3)*(X2 + Z2))^2
+		gcry_mpi_mulm(point_3->Z, def->X, a_2, *p); 				// Z1 * ((X3 - Z3)*(X2 + Z2) + (X3 - Z3)*(X2 + Z2))^2
 		
  	} 
  	else
  	{
  		//dadd-1987-m
- 		gcry_mpi_mulm(a_1, point_2->X, point_3->X, *p);  									// X2*X3
-		gcry_mpi_mulm(a_2, point_2->Z, point_3->Z, *p); 								    // Z2*Z3
-		gcry_mpi_subm(a_1, a_1, a_2, *p); 													// X2*X3 - Z2*Z3
-		gcry_mpi_mulm(a_1, a_1, a_1, *p); 													// (X2*X3 - Z2*Z3)^2
-		gcry_mpi_mulm(a_4, def->Z, a_1, *p); 												// Z0 * (X2*X3 - Z2*Z3)^2
+ 		gcry_mpi_mulm(a_1, point_2->X, point_3->X, *p);  			// X2*X3
+		gcry_mpi_mulm(a_2, point_2->Z, point_3->Z, *p); 			// Z2*Z3
+		gcry_mpi_subm(a_1, a_1, a_2, *p); 							// X2*X3 - Z2*Z3
+		gcry_mpi_mulm(a_1, a_1, a_1, *p); 							// (X2*X3 - Z2*Z3)^2
+		gcry_mpi_mulm(a_4, def->Z, a_1, *p); 						// Z0 * (X2*X3 - Z2*Z3)^2
 
-		gcry_mpi_mulm(a_1, point_2->X, point_3->Z, *p);  									// X2*Z3
-		gcry_mpi_mulm(a_2, point_2->Z, point_3->X, *p);  									// Z2*X3
-		gcry_mpi_subm(a_1, a_1, a_2, *p); 													// X2*Z3 - Z2*X3		
-		gcry_mpi_mulm(a_1, a_1, a_1, *p); 													// (X2*Z3 - Z2*X3)^2
-		gcry_mpi_mulm(point_3->Z, def->X , a_1, *p); 										//  X1 * (X2*Z3 - Z2*X3)^2
+		gcry_mpi_mulm(a_1, point_2->X, point_3->Z, *p);  			// X2*Z3
+		gcry_mpi_mulm(a_2, point_2->Z, point_3->X, *p);  			// Z2*X3
+		gcry_mpi_subm(a_1, a_1, a_2, *p); 							// X2*Z3 - Z2*X3		
+		gcry_mpi_mulm(a_1, a_1, a_1, *p); 							// (X2*Z3 - Z2*X3)^2
+		gcry_mpi_mulm(point_3->Z, def->X , a_1, *p); 				// X1 * (X2*Z3 - Z2*X3)^2
 		point_3->X = gcry_mpi_copy(a_4);
  	}
 
