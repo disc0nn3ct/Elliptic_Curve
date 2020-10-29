@@ -107,10 +107,6 @@ int main()
 
 
 
- 	print_point(&m_c.point1);
- 	print_point(&proint_q2);
-
-
 
  	// очистка памяти
  	gcry_mpi_release(zero);

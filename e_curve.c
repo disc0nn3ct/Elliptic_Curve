@@ -309,15 +309,7 @@ void add_point(struct point* point_3, struct point* point_2, struct point* def, 
  	else
  	{
  		//dadd-1987-m
- 		printf("XXXXXXXXXXXXXXXX22222222222222222\n");
- 		print_point(point_2);
- 		printf("XXXXXXXXXXXXXXXX33333333333333333\n");
- 		print_point(point_3);
  		gcry_mpi_mulm(a_1, point_2->X, point_3->X, *p);  									// X2*X3
-		
- 		printf("fffffffffffffffffffffffff\n");
- 		gcry_mpi_dump(a_1);
-		printf("\nfffffffffffffffffffffffff\n");
 		gcry_mpi_mulm(a_2, point_2->Z, point_3->Z, *p); 								    // Z2*Z3
 		gcry_mpi_subm(a_1, a_1, a_2, *p); 													// X2*X3 - Z2*Z3
 		gcry_mpi_mulm(a_1, a_1, a_1, *p); 													// (X2*X3 - Z2*Z3)^2
