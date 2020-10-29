@@ -140,8 +140,10 @@ int main()
 
 	gcry_mpi_t k1 = gcry_mpi_new(0);
  	gcry_mpi_scan(&k1, GCRYMPI_FMT_HEX, "4", 0, 0);
+ 	
 	gcry_mpi_t k2 = gcry_mpi_new(0);
  	gcry_mpi_scan(&k2, GCRYMPI_FMT_HEX, "3", 0, 0);
+	
 	gcry_mpi_t k12 = gcry_mpi_new(0);
 	gcry_mpi_addm(k12, k1, k2, m_c.p_mod);
 	gcry_mpi_t summ = gcry_mpi_new(0);

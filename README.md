@@ -13,11 +13,8 @@
 
  ```
 ./configurate 
-
 make 
-
 make check
-
 make install 
 
  ```
