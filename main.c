@@ -60,38 +60,67 @@ int main()
 		printf("Test Failed\n");
 	}
 
-
-
-
-	// print_point(&m_c.point1);
-
-
-
-
-
-
-
-	set_parameters(&m_c); // Установить гостовые переведенные параметры
-
-
-
-
-
-
-
+	set_parameters(&m_c); // Установить гостовые переведенные параметры, чтобы тесты были независимыми 
 
 	printf("\nTest 3\n");
+	printf("Проверить, что [q + 1]P = P и [q − 1]P = −P.\n");
+
+	struct point proint_q1, proint_q2; 
+	
+	init_point(&proint_q1);
+	init_point(&proint_q2);
+	make_copy_point(&proint_q1, &m_c.point1);
+	make_copy_point(&proint_q2, &m_c.point1);
+
+
+ 	gcry_mpi_t q1 = gcry_mpi_new(0);
+ 	gcry_mpi_t q2 = gcry_mpi_new(0);
+ 	q1 = gcry_mpi_copy(q);
+ 	q2 = gcry_mpi_copy(q);
+
+ 	gcry_mpi_addm(q1, q1, one, m_c.p_mod); 						// q + 1
+ 	gcry_mpi_subm(q2, q2, one, m_c.p_mod); 						// q - 1
+
+ 	montgomery_ladder(&proint_q1, &q1, &m_c);
+	montgomery_ladder(&proint_q2, &q2, &m_c);
+
+
+	if(gcry_mpi_cmp(proint_q1.X, m_c.point1.X) == 0 && gcry_mpi_cmp(proint_q1.Y, m_c.point1.Y) == 0)
+	{
+		printf("Test Passed for [q+1]P = P\n");
+	}
+	else
+	{
+		printf("Test Failed\n");
+	}
+	
+
+	if(gcry_mpi_cmp(proint_q2.X, m_c.point1.X) == 0 && gcry_mpi_cmp(proint_q2.Y, m_c.point1.Y) == 0)
+	{
+		printf("Test Passed for [q-1]P = -P\n");
+	}
+	else
+	{
+		printf("Test Failed\n");
+	}
 
 
 
 
+ 	print_point(&m_c.point1);
+ 	print_point(&proint_q2);
 
 
 
+ 	// очистка памяти
+ 	gcry_mpi_release(zero);
+ 	gcry_mpi_release(one);
+ 	gcry_mpi_release(q);
+	gcry_mpi_release(q1);
+	gcry_mpi_release(q2);
+ 	set_parameters(&m_c); // Установить гостовые переведенные параметры, чтобы тесты были независимыми 
 
 
-
-//////////////////////////////////////////////////////////////////////////////////////////////
 
 	printf("\n\nТест 4.\n");
 
@@ -150,6 +179,7 @@ int main()
 	}
 
 	// Освобождаем память 
+ 	del_curve(&m_c);
 	del_point(&point_k2);
 	del_point(&point_k3);
 	del_point(&point_k4);
@@ -157,92 +187,6 @@ int main()
 
 
 
-//////////////////////////////////////////////////////////////////////////////////////////
-	// init_point(&point_k1);
-	// init_point(&point_k2);
-	// init_point(&point_k12);
-
-	
-
-
-
-
-
-	// montgomery_ladder(&point_k1, &k1, &m_c);
-
-	// 	printf("\n\ngggggggggggggggg\n");
-
-	// montgomery_ladder(&point_k2, &k2, &m_c);
-	// printf("\n\ngggggggggggggggg\n");
-
-	// montgomery_ladder(&point_k12, &k12, &m_c);
-
-
-	// print_point(&point_k1);
-	// print_point(&point_k2);
-	
-	// add_point(&summ, &point_k1, &point_k2, &m_c.p_mod);
-
-	// print_point(&point_k12);
-
-
-
-	// printf("\nTest 3\n");
-	// make_copy_point(&point_k1, &m_c.point1);
-	// montgomery_ladder(&point_k1, &m_c.p_mod, &m_c);
-	// print_point(&point_k1);
-
-
-
-	
-	// montgomery_ladder();
-
-
-
-
-	// gcry_mpi_dump(m_c.p_mod);
-	// printf(" p\n");
-	// gcry_mpi_dump(m_c.point1.Z);
-	// printf(" z\n");
-
-	// gcry_mpi_dump(m_c.point1.X);
-	// printf(" x\n");
-
-	// gcry_mpi_dump(m_c.point1.Y);
-	// printf(" y\n");
-
-	// gcry_mpi_dump(m_c.A);
-	// printf(" A\n");
-
-	// gcry_mpi_dump(m_c.B);
-	// printf(" B\n");
-
-	// printf(" \n\n\n\n\n");
- 	// doubling_point(&m_c);
-	// add_point(&m_c.point1, &m_c.point1, &m_c.point1, &m_c.p_mod);
-
-
-
- // 	gcry_mpi_dump(m_c.point1.Z);
-	// printf(" z\n");
-
-	// gcry_mpi_dump(m_c.point1.X);
-	// printf(" x\n");
-
-	// gcry_mpi_dump(m_c.point1.Y);
-	// printf(" y\n");
-
-
-
-
-	// is_point_on_curve(&m_c);
-
-	// printf("ALLL NEW INFO +++++++++++++++++\n");
-
-
- // 	gcry_mpi_t four = gcry_mpi_new(0);
- // 	gcry_mpi_scan(&four, GCRYMPI_FMT_HEX, "4", 0, 0);
-	// montgomery_ladder(&m_c.point1, &four, &m_c);
 
 
     printf("\n\nfinished\n");

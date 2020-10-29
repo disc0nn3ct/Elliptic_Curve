@@ -10,7 +10,14 @@
 
 Установка: сначала Libgpg-error -> Libgcrypt
 
+./configurate 
+make 
+make check
+make install 
+
 Компиляция: 
 	gcc  main.c e_curve.c  -lgcrypt 
+
+
 
 

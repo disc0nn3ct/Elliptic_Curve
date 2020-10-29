@@ -94,11 +94,6 @@ void del_curve(struct mong_curve* m_c)
 	del_point(&m_c->point1);
 }
 
-// void set_MPI(gcry_mpi_t* p, char )
-// {
-// 		gcry_mpi_scan(&p, GCRYMPI_FMT_HEX, str, 0, 0);
-// }
-
 
 
 // Набор параметров id-tc26-gost-3410-2012-512-paramSet
@@ -333,13 +328,7 @@ void add_point(struct point* point_3, struct point* point_2, struct point* def, 
 		gcry_mpi_subm(a_1, a_1, a_2, *p); 													// X2*Z3 - Z2*X3		
 		gcry_mpi_mulm(a_1, a_1, a_1, *p); 													// (X2*Z3 - Z2*X3)^2
 		gcry_mpi_mulm(point_3->Z, def->X , a_1, *p); 										//  X1 * (X2*Z3 - Z2*X3)^2
-		
-
-
 		point_3->X = gcry_mpi_copy(a_4);
-		// printf("==============================================\n");
-		// print_point(point_3);
-
  	}
 
   // освобождение памяти
@@ -347,8 +336,6 @@ void add_point(struct point* point_3, struct point* point_2, struct point* def, 
   	gcry_mpi_release(a_2);
   	gcry_mpi_release(a_3);
   	gcry_mpi_release(a_4);
-
-
 }
 
 // Реализация лестницы Монтгомери из лекций 53-56 слайды, реализация на 54 стр. 
@@ -374,21 +361,13 @@ void montgomery_ladder(struct point* point_old, gcry_mpi_t* k, struct mong_curve
 	{
 		if(gcry_mpi_test_bit(*k, i) == 1)   
 		{
-			// printf("\n1\n");			
 			add_point(&point0.point1, &point_new.point1, point_old, &m_c->p_mod);
 			doubling_point(&point_new);
-
-			// print_point(&point_new.point1);
-			// print_point(&point0.point1);
 		}
 		else
 		{
-			// printf("\n0\n");
 			add_point(&point_new.point1, &point0.point1, point_old, &m_c->p_mod);
 			doubling_point(&point0);
-		
-			// print_point(&point_new.point1);
-			// print_point(&point0.point1);	
 		}
 	}
 
