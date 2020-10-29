@@ -203,6 +203,8 @@ void transform_point(struct point* point_1, gcry_mpi_t* p)
 		gcry_mpi_invm(littl, point_1->X, *p);
 		gcry_mpi_mulm(point_1->X, littl, point_1->X, *p);
 	}
+	gcry_mpi_release(littl);  
+	gcry_mpi_release(zeroo);
 
 }
 
@@ -271,6 +273,10 @@ int is_point_on_curve(struct mong_curve* m_c)
 		printf("Not in out curve\n");
 		return 0;
 	}
+
+	gcry_mpi_release(l);
+	gcry_mpi_release(r);	
+	gcry_mpi_release(r1);
 }
 
 

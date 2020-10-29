@@ -139,12 +139,12 @@ int main()
 
 
 	gcry_mpi_t k1 = gcry_mpi_new(0);
-	gcry_mpi_randomize(k1, 256, GCRY_STRONG_RANDOM); // рандомим k1 
+	gcry_mpi_randomize(k1, 35, GCRY_STRONG_RANDOM); // рандомим k1 
 
  	// gcry_mpi_scan(&k1, GCRYMPI_FMT_HEX, "4", 0, 0);
  	
 	gcry_mpi_t k2 = gcry_mpi_new(0);
-	gcry_mpi_randomize(k2, 256, GCRY_STRONG_RANDOM);  // рандомим k2 
+	gcry_mpi_randomize(k2, 35, GCRY_STRONG_RANDOM);  // рандомим k2 
 
  	// gcry_mpi_scan(&k2, GCRYMPI_FMT_HEX, "3", 0, 0);
 	
@@ -188,13 +188,14 @@ int main()
 	del_point(&point_k5);
 
 	printf("\nТест 5\n");
-	printf("Лежит ли [k]P на кривой?\n");
+	printf("\nЛежит ли [k]P на кривой?\n");
 
  	gcry_mpi_t rand1 = gcry_mpi_new(0);
 	gcry_mpi_randomize(rand1, 256, GCRY_STRONG_RANDOM);  // рандомим k2 
 
-	set_parameters(&m_c);
  	montgomery_ladder(&m_c.point1, &rand1, &m_c);
+
+
 
 	is_point_on_curve(&m_c);
 
@@ -203,7 +204,15 @@ int main()
 
  	del_curve(&m_c);
 	gcry_mpi_release(rand1);
-	// gcry_mpi_release();
+
+
+	gcry_mpi_release(k1);
+	gcry_mpi_release(k12);
+	gcry_mpi_release(summ);
+	gcry_mpi_release(subm);
+	del_point(&proint_q1);
+	del_point(&proint_q2);
+
 
     printf("\n\nfinished\n");
 }
