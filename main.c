@@ -104,10 +104,6 @@ int main()
 		printf("Test Failed\n");
 	}
 
-
-
-
-
  	// очистка памяти
  	gcry_mpi_release(zero);
  	gcry_mpi_release(one);
@@ -213,7 +209,5 @@ int main()
 	del_point(&proint_q1);
 	del_point(&proint_q2);
 	
-	gcry_control(GCRYCTL_FINALIZE);
-
     printf("\n\nfinished\n");
 }
