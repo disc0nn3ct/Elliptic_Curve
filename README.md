@@ -20,7 +20,9 @@ make install
  ```
 
 Компиляция: 
+'''
 	gcc main.c e_curve.c -lgcrypt 
+'''
 
 main.c основной + тесты
 
