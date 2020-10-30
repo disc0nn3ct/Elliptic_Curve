@@ -11,22 +11,22 @@ int set_flag(int a)
 }
 
 // структура для хранения точки
-struct point
-{
-	gcry_mpi_t X; 
-	gcry_mpi_t Y;  
-	gcry_mpi_t Z;
-};
+// struct point
+// {
+// 	gcry_mpi_t X; 
+// 	gcry_mpi_t Y;  
+// 	gcry_mpi_t Z;
+// };
 
 // структура для хранения параметров кривой Монтгомери и точек порождающих ее 
 
-struct mong_curve
-{
-	gcry_mpi_t A;
-	gcry_mpi_t B;
-	gcry_mpi_t p_mod;
-	struct point point1; 
-};
+// struct mong_curve
+// {
+// 	gcry_mpi_t A;
+// 	gcry_mpi_t B;
+// 	gcry_mpi_t p_mod;
+// 	struct point point1; 
+// };
 
 // Инициализация переменных для точки (для работы с большими числами) 
 

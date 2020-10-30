@@ -212,7 +212,8 @@ int main()
 	gcry_mpi_release(subm);
 	del_point(&proint_q1);
 	del_point(&proint_q2);
-
+	
+	gcry_control(GCRYCTL_FINALIZE);
 
     printf("\n\nfinished\n");
 }

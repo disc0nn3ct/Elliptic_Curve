@@ -1,5 +1,7 @@
 #ifndef E_CURVE_H
 #define E_CURVE_H
+#include <gcrypt.h>
+
 
 int set_flag(int a);
 
