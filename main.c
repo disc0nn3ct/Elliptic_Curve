@@ -161,13 +161,13 @@ int main()
 	}
 
 
-	montgomery_ladder(&point_k2, &k1, &m_c);					// [k1]P
-	montgomery_ladder(&point_k3, &k2, &m_c);					// [k2]P
-	gcry_mpi_addm(summ, k2, k1, m_c.p_mod);						// summ = k1 + k2 
-	montgomery_ladder(&point_k4, &summ, &m_c); 					// [k1+k2]P
-	gcry_mpi_subm(subm, k1,k2, m_c.p_mod); 						// [k1-k2]P   // так как формула сложения требует знание о еще одной точке 
+	montgomery_ladder(&point_k2, &k1, &m_c);                    // [k1]P
+	montgomery_ladder(&point_k3, &k2, &m_c);                    // [k2]P
+	gcry_mpi_addm(summ, k2, k1, m_c.p_mod);                     // summ = k1 + k2 
+	montgomery_ladder(&point_k4, &summ, &m_c);                  // [k1+k2]P
+	gcry_mpi_subm(subm, k1,k2, m_c.p_mod);                      // [k1-k2]P   // так как формула сложения требует знание о еще одной точке 
 	montgomery_ladder(&point_k5, &subm, &m_c);	  
-	add_point(&point_k2, &point_k3, &point_k5, &m_c.p_mod);		// [k1]P + [k2]P
+	add_point(&point_k2, &point_k3, &point_k5, &m_c.p_mod);     // [k1]P + [k2]P
 	transform_point(&point_k2, &m_c.p_mod);
 
 
